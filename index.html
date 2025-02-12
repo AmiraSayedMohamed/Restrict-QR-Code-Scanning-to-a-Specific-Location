@@ -3,58 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Verification</title>
+    <title>Location Verification</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .success {
+            background: #28a745;
+        }
+
+        .error {
+            background: #dc3545;
+        }
+    </style>
     <script>
         function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(checkPosition, showError);
             } else {
-                document.getElementById("message").innerText = "Geolocation is not supported by this browser.";
+                showMessage("Geolocation is not supported by this browser.", "error");
             }
         }
 
         function checkPosition(position) {
             const allowedLatitude = 30.5978333;  
             const allowedLongitude = 32.2996389; 
-            const radius = 500; // Radius in meters (500m)
+            const radius = 200; // Radius in meters
 
             const userLatitude = position.coords.latitude;
             const userLongitude = position.coords.longitude;
 
             console.log(`User Latitude: ${userLatitude}, User Longitude: ${userLongitude}`);
 
-            // Calculate distance using Haversine formula
             const distance = getDistanceFromLatLonInM(userLatitude, userLongitude, allowedLatitude, allowedLongitude);
-
             console.log(`Distance from allowed location: ${distance} meters`);
 
             if (distance <= radius) {
-                window.location.href = "https://forms.microsoft.com/Pages/ResponsePage.aspx?id=MyLm9SCzHU2nNzgHYTLo22_12ZhQ5p1AucR_V7HurK5UN0NXWDcxSzdXOE5PU1NQSU9ER1JLTkI2MS4u"; 
+                showMessage("✅ Verified! Redirecting you now...", "success");
+                setTimeout(() => {
+                    window.location.href = "https://forms.microsoft.com/Pages/ResponsePage.aspx?id=MyLm9SCzHU2nNzgHYTLo22_12ZhQ5p1AucR_V7HurK5UN0NXWDcxSzdXOE5PU1NQSU9ER1JLTkI2MS4u";
+                }, 2000);
             } else {
-                document.getElementById("message").innerText = "You are not in the allowed location!";
+                showMessage("❌ You are not in the allowed location!", "error");
             }
         }
 
         function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
-            const R = 6371000; // Radius of the Earth in meters
+            const R = 6371000;
             const dLat = (lat2 - lat1) * (Math.PI / 180);
             const dLon = (lon2 - lon1) * (Math.PI / 180);
-            const a = 
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const distance = R * c; // Distance in meters
-            return distance;
+            return R * c;
         }
 
         function showError(error) {
-            document.getElementById("message").innerText = "Error: Please enable location services and try again.";
+            showMessage("❌ Error: Please enable location services and try again.", "error");
+        }
+
+        function showMessage(text, type) {
+            document.getElementById("loading").style.display = "none";
+            const messageDiv = document.getElementById("message");
+            messageDiv.innerText = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = "block";
         }
     </script>
 </head>
 <body onload="getLocation()">
-    <h2>Checking your location...</h2>
-    <p id="message"></p>
+    <div class="container">
+        <h2>🔍 Please wait...</h2>
+        <p>We are checking if you are in the allowed location.</p>
+        <div id="loading" class="spinner"></div>
+        <p id="message"></p>
+    </div>
 </body>
 </html>
