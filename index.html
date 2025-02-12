@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Verification</title>
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(checkPosition, showError);
+            } else {
+                document.getElementById("message").innerText = "Geolocation is not supported by this browser.";
+            }
+        }
+
+        function checkPosition(position) {
+            const allowedLatitude = 30.5978333;  // Change this to your location
+            const allowedLongitude = 32.2996389; // Change this to your location
+            const radius = 0.01; // Adjust the radius in degrees (~500m)
+
+            const userLatitude = position.coords.latitude;
+            const userLongitude = position.coords.longitude;
+
+            // Calculate distance using a simple method (for better accuracy, use Haversine formula)
+            const distance = Math.sqrt(
+                Math.pow(userLatitude - allowedLatitude, 2) + Math.pow(userLongitude - allowedLongitude, 2)
+            );
+
+            if (distance < radius) {
+                window.location.href = "https://forms.microsoft.com/YOUR_FORM_LINK"; // Redirect to Microsoft Form
+            } else {
+                document.getElementById("message").innerText = "You are not in the allowed location!";
+            }
+        }
+
+        function showError(error) {
+            document.getElementById("message").innerText = "Error: Please enable location services and try again.";
+        }
+    </script>
+</head>
+<body onload="getLocation()">
+    <h2>Checking your location...</h2>
+    <p id="message"></p>
+</body>
+</html>
