@@ -14,23 +14,38 @@
         }
 
         function checkPosition(position) {
-            const allowedLatitude = 30.5978333;  // Change this to your location
-            const allowedLongitude = 32.2996389; // Change this to your location
-            const radius = 0.01; // Adjust the radius in degrees (~500m)
+            const allowedLatitude = 30.5978333;  
+            const allowedLongitude = 32.2996389; 
+            const radius = 500; // Radius in meters (500m)
 
             const userLatitude = position.coords.latitude;
             const userLongitude = position.coords.longitude;
 
-            // Calculate distance using a simple method (for better accuracy, use Haversine formula)
-            const distance = Math.sqrt(
-                Math.pow(userLatitude - allowedLatitude, 2) + Math.pow(userLongitude - allowedLongitude, 2)
-            );
+            console.log(`User Latitude: ${userLatitude}, User Longitude: ${userLongitude}`);
 
-            if (distance < radius) {
-                window.location.href = "https://forms.microsoft.com/YOUR_FORM_LINK"; // Redirect to Microsoft Form
+            // Calculate distance using Haversine formula
+            const distance = getDistanceFromLatLonInM(userLatitude, userLongitude, allowedLatitude, allowedLongitude);
+
+            console.log(`Distance from allowed location: ${distance} meters`);
+
+            if (distance <= radius) {
+                window.location.href = "https://forms.microsoft.com/Pages/ResponsePage.aspx?id=MyLm9SCzHU2nNzgHYTLo22_12ZhQ5p1AucR_V7HurK5UN0NXWDcxSzdXOE5PU1NQSU9ER1JLTkI2MS4u"; 
             } else {
                 document.getElementById("message").innerText = "You are not in the allowed location!";
             }
+        }
+
+        function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
+            const R = 6371000; // Radius of the Earth in meters
+            const dLat = (lat2 - lat1) * (Math.PI / 180);
+            const dLon = (lon2 - lon1) * (Math.PI / 180);
+            const a = 
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = R * c; // Distance in meters
+            return distance;
         }
 
         function showError(error) {
